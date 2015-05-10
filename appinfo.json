@@ -1,0 +1,30 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "avocalodge@gmail.com",
+    "longName": "Mondrian",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/mondrian_28_28.png",
+                "menuIcon": true,
+                "name": "MONDRIAN_28_28",
+                "type": "png"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "Mondrian",
+    "targetPlatforms": [
+        "basalt"
+    ],
+    "uuid": "71815758-cf69-4703-8ad1-2677e650f30c",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": true
+    }
+}
