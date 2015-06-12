@@ -51,7 +51,7 @@ static void mainwindow_load(Window *window) {
   
   
   // graphics layer
-  s_graph_layer = layer_create(GRect(0, 0, 143, 167));
+  s_graph_layer = layer_create(GRect(0, 0, 144, 168));
 
   //callback
   layer_set_update_proc(s_graph_layer, gfx_layer_update_callback);
@@ -130,41 +130,84 @@ void gfx_layer_update_callback(Layer *me, GContext* ctx) {
 static void set_colour(GContext* ctx, int fill_hrs, int fill_mins)
 {
   GColor                      col = COL_NONE;
-  if (fill_hrs)               col = COL_HOURS;
-  if (fill_mins)              col = COL_MINS;
-  if (fill_hrs && fill_mins)  col = COL_BOTH;
+  
+  APP_LOG(APP_LOG_LEVEL_INFO, "set_colour");
+
+  if (fill_hrs)               {col = COL_HOURS;
+                               APP_LOG(APP_LOG_LEVEL_INFO, "  set_colour  Blue");}
+  if (fill_mins)              {col = COL_MINS;
+                               APP_LOG(APP_LOG_LEVEL_INFO, "  set_colour  Yellow");}
+  if (fill_hrs && fill_mins)  {col = COL_BOTH;
+                               APP_LOG(APP_LOG_LEVEL_INFO, "  set_colour  Red");}
   
   graphics_context_set_fill_color(ctx, col);
+    APP_LOG(APP_LOG_LEVEL_INFO, "/set_colour");
+
+}
+
+static void set_colour_5(GContext* ctx, int fill_hrs, int fill_mins)
+{
+  GColor                      col = COL_NONE;
+  
+  APP_LOG(APP_LOG_LEVEL_INFO, "set_colour_5");
+
+  text_layer_set_text_color(s_time_layer, GColorBlack);
+
+//   if (fill_hrs)               { col = COL_HOURS;        
+//                                 text_layer_set_text_color(s_time_layer, GColorWhite); }
+//   if (fill_mins)              { col = COL_MINS;
+//                                 APP_LOG(APP_LOG_LEVEL_INFO, "  set_colour  Yellow");
+//                                 text_layer_set_text_color(s_time_layer, GColorBlack);}
+//   if (fill_hrs && fill_mins)  { col = COL_BOTH;
+//                                 text_layer_set_text_color(s_time_layer, GColorWhite);}
+  
+
+  graphics_context_set_fill_color(ctx, col);
+    APP_LOG(APP_LOG_LEVEL_INFO, "/set_colour_5");
+
+ 
+
 }
 
 
 //  rectangles + colour logic
 static void fill_rect_5(GContext* ctx, int fill_hrs, int fill_mins)
 {
-  set_colour(ctx, fill_hrs, fill_mins);
+  APP_LOG(APP_LOG_LEVEL_INFO, "fill_rect_5");
+
+  set_colour_5(ctx, fill_hrs, fill_mins);
+  
   graphics_fill_rect	(	 	ctx, (GRect) {.origin = { 0   , 84 }, 
                                         .size   = { 144 , 84 }}, 0, 0);
 }
 static void fill_rect_3(GContext* ctx, int fill_hrs, int fill_mins)
 {
+    APP_LOG(APP_LOG_LEVEL_INFO, "fill_rect_3");
+
   set_colour(ctx, fill_hrs, fill_mins);
   graphics_fill_rect	(	 	ctx, (GRect) {.origin = { 0   , 0 }, 
                                         .size   = { 71 , 83}}, 0, 0);
 }
 static void fill_rect_2(GContext* ctx, int fill_hrs, int fill_mins)
 {
+    APP_LOG(APP_LOG_LEVEL_INFO, "fill_rect_2");
+
   set_colour(ctx, fill_hrs, fill_mins);
   graphics_fill_rect	(	 	ctx, (GRect) {.origin = { 73  , 43 }, 
                                         .size   = { 72 , 42}}, 0, 0);
 }
 static void fill_rect_1a(GContext* ctx, int fill_hrs, int fill_mins)
 {
+    APP_LOG(APP_LOG_LEVEL_INFO, "fill_rect_1a");
+
   set_colour(ctx, fill_hrs, fill_mins);
   graphics_fill_rect	(	 	ctx, (GRect) {.origin = { 73  , 0 }, 
                                         .size   = { 35 , 41}}, 0, 0); 
 }
 static void fill_rect_1b(GContext* ctx, int fill_hrs, int fill_mins)
 {
+  APP_LOG(APP_LOG_LEVEL_INFO, "fill_rect_1b");
+
   set_colour(ctx, fill_hrs, fill_mins);
   graphics_fill_rect	(	 	ctx, (GRect) {.origin = { 109  , 0 }, 
                                         .size   = { 35 , 41}}, 0, 0); 
@@ -228,8 +271,8 @@ static void update_time() {
   struct tm *tick_time = localtime(&temp);
   
   // debug , testing, screenshots
-//   tick_time->tm_min = 25;  
-//   tick_time->tm_hour = 4;
+//    tick_time->tm_min = 59;  
+//    tick_time->tm_hour = 12;
 //   APP_LOG(APP_LOG_LEVEL_WARNING, "time: tm_sec=%d  tm_min=%d   tm_hour=%d", tick_time->tm_sec, tick_time->tm_min, tick_time->tm_hour);
 
 
