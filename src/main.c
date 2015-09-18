@@ -19,11 +19,12 @@
    
 static void update_time();
 
-static Window    *s_main_window;
-static TextLayer *s_time_layer,
-                 *s_date_layer;
-       Layer     *s_graph_layer;
-
+static Window      *s_main_window;
+static TextLayer   *s_time_layer,
+                   *s_date_layer;
+       Layer       *s_graph_layer;
+static BitmapLayer *s_bt_icon_layer;
+static GBitmap     *s_bt_icon_bitmap;
 
 
 #define COL_HOURS GColorBlue
@@ -44,6 +45,20 @@ static void fill_rect_1b(GContext* ctx, int fill_hrs, int fill_mins);
 
 
 
+static void bluetooth_callback(bool connected) {
+  // Show icon if disconnected
+  layer_set_hidden(bitmap_layer_get_layer(s_bt_icon_layer), connected);
+
+  APP_LOG(APP_LOG_LEVEL_WARNING, "blutooth status: %d", (int) connected);
+
+  // Issue a vibrating alert
+  if(!connected) {
+    vibes_double_pulse();
+  } else {
+    vibes_short_pulse();
+  }
+}
+  
 
 static void mainwindow_load(Window *window) {
   // Create time TextLayer
@@ -68,27 +83,37 @@ static void mainwindow_load(Window *window) {
   
   // graphics layer
   s_graph_layer = layer_create(GRect(0, 0, 144, 168));
+  
+  // BT indicator
+  s_bt_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BT_ICON);
+  s_bt_icon_layer = bitmap_layer_create(GRect(0, 131, 30, 30));
+  bitmap_layer_set_compositing_mode(s_bt_icon_layer, GCompOpSet);
+  bitmap_layer_set_bitmap(s_bt_icon_layer, s_bt_icon_bitmap);
+
 
   //callback
   layer_set_update_proc(s_graph_layer, gfx_layer_update_callback);
 
   
   // add to parent
-
   layer_add_child(window_get_root_layer(window), s_graph_layer);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_date_layer));
+  layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_bt_icon_layer));
 
   
   // set all to white
   window_set_background_color(s_main_window, GColorWhite);
+  
+  // Show the correct state of the BT connection from the start
+  bluetooth_callback(bluetooth_connection_service_peek());
 
 
 }
 
 
 void gfx_layer_update_callback(Layer *me, GContext* ctx) {
-  APP_LOG(APP_LOG_LEVEL_INFO, "gfx_layer_update_callback() - entry" );
+//   APP_LOG(APP_LOG_LEVEL_INFO, "gfx_layer_update_callback() - entry" );
 
   // Colour in boxes
   fill_rect_5  (ctx, fill_h[0], fill_m[0]);
@@ -137,8 +162,10 @@ void gfx_layer_update_callback(Layer *me, GContext* ctx) {
   graphics_draw_line(ctx, (GPoint){110, 0},
                           (GPoint){110, 42} );
   
+
+
   
-  APP_LOG(APP_LOG_LEVEL_INFO, "gfx_layer_update_callback() - exit" );
+//   APP_LOG(APP_LOG_LEVEL_INFO, "gfx_layer_update_callback() - exit" );
 }
 
 
@@ -147,7 +174,7 @@ static void set_colour(GContext* ctx, int fill_hrs, int fill_mins)
 {
   GColor                      col = COL_NONE;
   
-  APP_LOG(APP_LOG_LEVEL_INFO, "set_colour");
+//   APP_LOG(APP_LOG_LEVEL_INFO, "set_colour");
 
   if (fill_hrs)               {col = COL_HOURS;
                                APP_LOG(APP_LOG_LEVEL_INFO, "  set_colour  Blue");}
@@ -157,7 +184,7 @@ static void set_colour(GContext* ctx, int fill_hrs, int fill_mins)
                                APP_LOG(APP_LOG_LEVEL_INFO, "  set_colour  Red");}
   
   graphics_context_set_fill_color(ctx, col);
-    APP_LOG(APP_LOG_LEVEL_INFO, "/set_colour");
+//     APP_LOG(APP_LOG_LEVEL_INFO, "/set_colour");
 
 }
 
@@ -165,7 +192,7 @@ static void set_colour_5(GContext* ctx, int fill_hrs, int fill_mins)
 {
   GColor                      col = COL_NONE;
   
-  APP_LOG(APP_LOG_LEVEL_INFO, "set_colour_5");
+//   APP_LOG(APP_LOG_LEVEL_INFO, "set_colour_5");
 
   text_layer_set_text_color(s_time_layer, GColorBlack);
 
@@ -179,7 +206,7 @@ static void set_colour_5(GContext* ctx, int fill_hrs, int fill_mins)
   
 
   graphics_context_set_fill_color(ctx, col);
-    APP_LOG(APP_LOG_LEVEL_INFO, "/set_colour_5");
+//     APP_LOG(APP_LOG_LEVEL_INFO, "/set_colour_5");
 
  
 
@@ -189,7 +216,7 @@ static void set_colour_5(GContext* ctx, int fill_hrs, int fill_mins)
 //  rectangles + colour logic
 static void fill_rect_5(GContext* ctx, int fill_hrs, int fill_mins)
 {
-  APP_LOG(APP_LOG_LEVEL_INFO, "fill_rect_5");
+//   APP_LOG(APP_LOG_LEVEL_INFO, "fill_rect_5");
 
   set_colour_5(ctx, fill_hrs, fill_mins);
   
@@ -198,7 +225,7 @@ static void fill_rect_5(GContext* ctx, int fill_hrs, int fill_mins)
 }
 static void fill_rect_3(GContext* ctx, int fill_hrs, int fill_mins)
 {
-    APP_LOG(APP_LOG_LEVEL_INFO, "fill_rect_3");
+//     APP_LOG(APP_LOG_LEVEL_INFO, "fill_rect_3");
 
   set_colour(ctx, fill_hrs, fill_mins);
   graphics_fill_rect	(	 	ctx, (GRect) {.origin = { 0   , 0 }, 
@@ -206,7 +233,7 @@ static void fill_rect_3(GContext* ctx, int fill_hrs, int fill_mins)
 }
 static void fill_rect_2(GContext* ctx, int fill_hrs, int fill_mins)
 {
-    APP_LOG(APP_LOG_LEVEL_INFO, "fill_rect_2");
+//     APP_LOG(APP_LOG_LEVEL_INFO, "fill_rect_2");
 
   set_colour(ctx, fill_hrs, fill_mins);
   graphics_fill_rect	(	 	ctx, (GRect) {.origin = { 73  , 43 }, 
@@ -214,7 +241,7 @@ static void fill_rect_2(GContext* ctx, int fill_hrs, int fill_mins)
 }
 static void fill_rect_1a(GContext* ctx, int fill_hrs, int fill_mins)
 {
-    APP_LOG(APP_LOG_LEVEL_INFO, "fill_rect_1a");
+//     APP_LOG(APP_LOG_LEVEL_INFO, "fill_rect_1a");
 
   set_colour(ctx, fill_hrs, fill_mins);
   graphics_fill_rect	(	 	ctx, (GRect) {.origin = { 73  , 0 }, 
@@ -222,7 +249,7 @@ static void fill_rect_1a(GContext* ctx, int fill_hrs, int fill_mins)
 }
 static void fill_rect_1b(GContext* ctx, int fill_hrs, int fill_mins)
 {
-  APP_LOG(APP_LOG_LEVEL_INFO, "fill_rect_1b");
+//   APP_LOG(APP_LOG_LEVEL_INFO, "fill_rect_1b");
 
   set_colour(ctx, fill_hrs, fill_mins);
   graphics_fill_rect	(	 	ctx, (GRect) {.origin = { 109  , 0 }, 
@@ -237,7 +264,9 @@ static void mainwindow_unload(Window *window) {
    // Destroy
    text_layer_destroy(s_time_layer);
    layer_destroy(s_graph_layer);
-
+   // BT indicator
+   gbitmap_destroy(s_bt_icon_bitmap);
+   bitmap_layer_destroy(s_bt_icon_layer);
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
@@ -257,6 +286,9 @@ static void init() {
     
   window_stack_push(s_main_window, true);
   
+  // Register for Bluetooth connection updates
+  bluetooth_connection_service_subscribe(bluetooth_callback);
+
 }
 
 static void deinit() {
@@ -318,7 +350,7 @@ static void update_time() {
   strftime(buf, sizeof("00"), "%l", tick_time);
   hrs=atoi(buf);
   strftime(buf, sizeof("00"), "%M", tick_time);
-  APP_LOG(APP_LOG_LEVEL_INFO, "colour calc, mins=%s", buf);
+//   APP_LOG(APP_LOG_LEVEL_INFO, "colour calc, mins=%s", buf);
 
   mins=1+ atoi(buf)/5;
   
@@ -332,8 +364,8 @@ static void update_time() {
   calc_fill (1, &hrs, &mins, &fill_h[4], &fill_m[4]);
   
     
-  int i; for (i=0; i<5;i++){
-       APP_LOG(APP_LOG_LEVEL_INFO, "       fill_h[%d]=%d     fill_m[%d]=%d", i,fill_h[i],i,fill_m[i]);
-  }
+//   int i; for (i=0; i<5;i++){
+//        APP_LOG(APP_LOG_LEVEL_INFO, "       fill_h[%d]=%d     fill_m[%d]=%d", i,fill_h[i],i,fill_m[i]);
+//   }
   
 }
