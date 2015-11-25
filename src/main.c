@@ -43,20 +43,21 @@ static void fill_rect_2(GContext* ctx, int fill_hrs, int fill_mins);
 static void fill_rect_1a(GContext* ctx, int fill_hrs, int fill_mins);
 static void fill_rect_1b(GContext* ctx, int fill_hrs, int fill_mins);
 
-
+static int do_bt_vibe = 0; // first time, including when switching back from timeline
 
 static void bluetooth_callback(bool connected) {
   // Show icon if disconnected
   layer_set_hidden(bitmap_layer_get_layer(s_bt_icon_layer), connected);
 
-  APP_LOG(APP_LOG_LEVEL_WARNING, "blutooth status: %d", (int) connected);
-
   // Issue a vibrating alert
   if(!connected) {
-    vibes_double_pulse();
+      vibes_double_pulse();
   } else {
-    vibes_short_pulse();
+      if (do_bt_vibe)  // dont vibe if BT enabled and switching back from timeline
+          vibes_short_pulse();
   }
+  
+  do_bt_vibe = 1;
 }
   
 
@@ -107,7 +108,6 @@ static void mainwindow_load(Window *window) {
   
   // Show the correct state of the BT connection from the start
   bluetooth_callback(bluetooth_connection_service_peek());
-
 
 }
 
